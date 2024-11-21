@@ -4,7 +4,11 @@ DIR		:=	srcs/
 
 SRCS	:= 	main.c \
 			parsing.c \
-			utils.c
+			utils.c \
+			init.c \
+			eat_limits.c \
+			routine.c \
+			get_values_philo.c
 
 OBJS	:=	$(patsubst %.c, $(DIR)%.o, $(SRCS))
 
@@ -12,7 +16,7 @@ OBJSB	:=	$(patsubst %.c, $(DIRB)%.o, $(SRCSB))
 
 CC		:= cc
 
-FLAGS 	:= -Wall -Werror -Wextra -I includes
+FLAGS 	:= -Wall -Werror -Wextra -I includes -g
 
 all: ${NAME}
 

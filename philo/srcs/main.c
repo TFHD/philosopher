@@ -12,22 +12,44 @@
 
 #include "philo.h"
 
+int ft_quit(t_data *data)
+{
+	int	i;
+
+	i = 0;
+	while (i < data->nb_philos)
+	{
+		pthread_mutex_destroy(&data->forks[i]);
+		pthread_mutex_destroy(&data->philos[i].lock);
+		i++;
+	}
+	pthread_mutex_destroy(&data->lock);
+	pthread_mutex_destroy(&data->print);
+	if (data->thread_id)
+		free(data->thread_id);
+	if (data->forks)
+		free(data->forks);
+	if (data->philos)
+		free(data->philos);
+	return (1);
+}
+
 int	main(int ac, char **av)
 {
 	long long	*params;
-	int			i;
+	t_data		data;
 
-	i = 0;
 	if (!check_args(ac))
 		return (0);
 	params = ft_parse(ac, av + 1);
-	if (params == NULL)
+	if (!params)
 	{
 		write(2, "Go fix your brain and put positive number\n", 42);
 		return (0);
 	}
-	while (i < ac - 1)
-		printf("%lld\n", params[i++]);
+	if (init(&data, params, ac))
+		free(params);
+	ft_quit(&data);
 	free(params);
 	return (0);
 }
