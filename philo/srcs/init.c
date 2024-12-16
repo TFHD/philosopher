@@ -6,7 +6,7 @@
 /*   By: sabartho <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/12 15:12:32 by sabartho          #+#    #+#             */
-/*   Updated: 2024/11/12 16:39:59 by sabartho         ###   ########.fr       */
+/*   Updated: 2024/12/02 20:40:12 by sabartho         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,12 +43,16 @@ void	init_forks(t_data *data)
 	while (i < data->nb_philos)
 		pthread_mutex_init(&data->forks[i++], NULL);
 	data->philos[0].l_fork = &data->forks[0];
-	data->philos[0].r_fork = &data->forks[data->nb_philos - 1];	
+	if (data->nb_philos != 1)
+		data->philos[0].r_fork = &data->forks[1];
 	i = 1;
 	while (i < data->nb_philos)
 	{
 		data->philos[i].l_fork = &data->forks[i];
-		data->philos[i].r_fork = &data->forks[i - 1];
+		if (i == data->nb_philos - 1)
+			data->philos[i].r_fork = &data->forks[0];
+		else
+			data->philos[i].r_fork = &data->forks[i + 1];
 		i++;
 	}
 }
@@ -65,7 +69,6 @@ void	init_philos(t_data *data)
 		data->philos[i].time_to_die = data->death_time;
 		data->philos[i].eat_count = 0;
 		data->philos[i].eating = 0;
-		data->philos[i].status = 0;
 		pthread_mutex_init(&data->philos[i].lock, NULL);
 		i++;
 	}
@@ -73,31 +76,26 @@ void	init_philos(t_data *data)
 
 int	init_threads(t_data *data)
 {
-	int		i;
-	pthread_t	t_eat;
+	int			i;
 
 	data->start_time = get_time();
-	//printf("\e[4;96m   Time    | Philo |       Action       \e[0m\n");
-	if (data->nb_eat > 0)
-	{
-		if (pthread_create(&t_eat, NULL, &eat_limits, &data->philos[0]))
-			return (ft_quit(data));
-	}
+	printf("\e[4;96m   Time    | Philo |       Action       \e[0m\n");
 	i = 0;
 	while (i < data->nb_philos)
 	{
-		if (pthread_create(&data->thread_id[i], NULL, &routine, &data->philos[i]))
-			return(ft_quit(data));
-		i++;
-		ft_sleep(1);
-	}
-	i = 0;
-	while (i < data->nb_philos)
-	{
-		if (pthread_join(data->thread_id[i], NULL))
+		if (pthread_create(&data->thread_id[i], NULL, &routine,
+				&data->philos[i]))
 			return (ft_quit(data));
 		i++;
+		usleep(1);
 	}
+	i = 0;
+	usleep(10);
+	manager(data);
+	usleep(1000);
+	while (i < data->nb_philos)
+		if (pthread_join(data->thread_id[i++], NULL))
+			return (ft_quit(data));
 	return (0);
 }
 
@@ -107,9 +105,7 @@ int	init(t_data *data, long long *params, int ac)
 		return (1);
 	init_forks(data);
 	init_philos(data);
-
 	if (init_threads(data))
 		return (1);
 	return (0);
-
 }

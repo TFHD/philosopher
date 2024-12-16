@@ -6,13 +6,13 @@
 /*   By: sabartho <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/12 15:12:32 by sabartho          #+#    #+#             */
-/*   Updated: 2024/11/12 16:39:59 by sabartho         ###   ########.fr       */
+/*   Updated: 2024/12/02 19:47:12 by sabartho         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-int ft_quit(t_data *data)
+int	ft_quit(t_data *data)
 {
 	int	i;
 
@@ -25,6 +25,7 @@ int ft_quit(t_data *data)
 	}
 	pthread_mutex_destroy(&data->lock);
 	pthread_mutex_destroy(&data->print);
+	pthread_mutex_destroy(&data->is_dead);
 	if (data->thread_id)
 		free(data->thread_id);
 	if (data->forks)
@@ -44,7 +45,7 @@ int	main(int ac, char **av)
 	params = ft_parse(ac, av + 1);
 	if (!params)
 	{
-		write(2, "Go fix your brain and put positive number\n", 42);
+		write(2, "Invalid arguments\n", 18);
 		return (0);
 	}
 	if (init(&data, params, ac))

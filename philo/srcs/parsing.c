@@ -6,7 +6,7 @@
 /*   By: sabartho <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/12 16:40:51 by sabartho          #+#    #+#             */
-/*   Updated: 2024/11/12 16:41:39 by sabartho         ###   ########.fr       */
+/*   Updated: 2024/12/02 19:01:27 by sabartho         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,6 +52,8 @@ long long	ft_atoll(const char *nptr)
 		if (result < 0)
 			return (0);
 	}
+	if (nptr[i] != 0)
+		return (0);
 	return (result);
 }
 

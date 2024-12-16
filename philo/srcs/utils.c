@@ -6,26 +6,31 @@
 /*   By: sabartho <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/12 17:50:49 by sabartho          #+#    #+#             */
-/*   Updated: 2024/11/12 17:53:01 by sabartho         ###   ########.fr       */
+/*   Updated: 2024/12/02 20:54:05 by sabartho         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-int	ft_sleep(size_t time)
+int	ft_sleep(size_t time, t_philo *philo)
 {
 	size_t	start;
 
 	start = get_time();
 	while ((get_time() - start) < time)
-		usleep(time / 10);
+	{
+		if (get_time() >= philo->time_to_die)
+			break ;
+		else
+			usleep(150);
+	}
 	return (0);
 }
 
 size_t	get_time(void)
 {
 	struct timeval	timev;
-	size_t		time;
+	size_t			time;
 
 	if (gettimeofday(&timev, NULL))
 		return (1);
@@ -38,21 +43,22 @@ void	send(char *str, t_philo *philo)
 	size_t	time;
 
 	pthread_mutex_lock(&philo->data->print);
-	time = get_time() - philo->data->start_time;
-	if (strcmp(DEAD, str) == 0 && philo->data->dead == 0)
+	time = get_time() - philo->data->start_time + 1;
+	if (ft_strcmp(DEAD, str) == 0 && !is_dead(philo))
 	{
 		printf("🕐 \e[95m%5.zums\e[0m | ", time);
 		printf("\e[1;31m#%-5.d\e[0m| %20s\n", philo->id, str);
+		pthread_mutex_lock(&philo->data->lock);
 		philo->data->dead = 1;
+		pthread_mutex_unlock(&philo->data->lock);
 	}
-	if (!philo->data->dead)
+	if (!is_dead(philo))
 	{
 		printf("🕐 \e[95m%5.zums\e[0m | ", time);
 		printf("\e[1;92m#%-5.d\e[0m| %20s\n", philo->id, str);
 	}
 	pthread_mutex_unlock(&philo->data->print);
 }
-
 
 size_t	ft_strlen(const char *str)
 {
